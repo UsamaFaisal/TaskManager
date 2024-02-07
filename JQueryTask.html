@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>TASK MANAGER</title>
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+   </head>
+   <body>
+      <style>
+         .strikethrough-row {
+         text-decoration: line-through;
+         }
+      </style>
+      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+      <script>
+         class Task
+         {
+           static count = 1;
+           constructor(title,description,due_date,status)
+           {
+             console.log("aya")
+             this.id=Task.count
+             Task.count+=1
+             this.title=title
+             this.description=description
+             this.due_date=due_date
+             this.status=status
+           }
+           status()
+           {
+             this.status
+           }
+           setstatus(status)
+           {
+             this.status=status
+           }
+         }
+         class Task_Manager
+         {
+           constructor()
+           {
+             this.list=[];
+           }
+           add_task(task)
+           {
+             this.list.push(task);
+           }
+           removeTask(id) {
+             const index = this.list.findIndex(task => task.id === id);
+             if (index !== -1) {
+                 // console.log(this.list)
+                 this.list.splice(index, 1);
+                 // console.log(this.list)
+                 // console.log(id)
+                 $("#"+id).remove();
+             
+             }
+            }
+           set_status(id) {
+           console.log("Before:", this.list);
+         
+           const index = this.list.findIndex(task => task.id === id);
+         
+           if (index === -1) {
+             console.error('Task not found with the specified ID.');
+             return;
+           }
+         
+           if (this.list[index].status !== 'Complete') {
+              this.list[index].status = 'Complete';  
+           }
+         
+           console.log("After:", this.list);
+           const tableRow = $("#"+id);
+           console.log(id)
+           if (tableRow) {
+             tableRow.addClass('strikethrough-row');
+             // debugger
+             var statusTh = $("table th:contains('Status')");
+             var statusIndex = statusTh.index() + 1;
+             var buttonTh = $("table th:contains('Action')");
+             var buttonIndex = buttonTh.index() + 1;
+             var completedTh = $("table th:contains('Completed')");
+             var completedIndex = completedTh.index() + 1;
+             tableRow.find('td:nth-child(' + statusIndex + ')').text("Complete");
+             tableRow.find('td:nth-child(' + buttonIndex + ')').children().removeAttr('disabled');
+             tableRow.find('td:nth-child(' + completedIndex + ')').children().attr('disabled', 'disabled');
+             tableRow.find('td:nth-child(' + completedIndex + ')').children().attr('checked', 'checked');
+           } else {
+             console.error('Table row not found with the specified index.');
+           }
+         }
+            display_tasks() {
+                 console.log(this.list)
+                 var completelist=$("#table");
+                 var i=this.list.length-1
+                 // completelist=$("#table").val();
+                     var isChecked = this.list[i].status === 'Complete';
+                     var isDisable = this.list[i].status === 'Pending';
+                     completelist.append("<tr id="+this.list[i].id+" data-type={this.list[i].id} class=" + (isChecked ? "strikethrough-row" : "") + ">"+
+                     "<td>" + this.list[i].id + "</td>"+
+                     "<td>" + this.list[i].title + "</td>"+
+                     "<td>" + this.list[i].description + "</td>"+
+                     "<td>" + this.list[i].due_date + "</td>"+
+                     "<td>" + this.list[i].status + "</td>"+
+                     "<td><input onclick=\"Obj.set_status(" + this.list[i].id + ")\" type=\"checkbox\"" + (isChecked ? "checked disabled" : "") + " />"+
+                     "</td>"+
+                     "<td><button onclick=\"Obj.removeTask(" + this.list[i].id + ")\"" + (isDisable ? " disabled" : "") + " >Remove</button></td></tr>");
+             }
+         }
+         const Obj=new Task_Manager()
+         function myFunction(){
+             var title=$("#title").val();
+             if(title.length>26 || title.length<=0) 
+             {
+                 alert("INVALID TITLE")
+                 return
+             }
+             var description=$("#description").val();
+             if(description.length>200 || description.length<2) {
+                 alert("INVALID Description")
+                 return
+             }
+             var current_date=new Date()
+             var due_date=$("#due_date").val();
+             var temp_date=new Date(due_date)
+             if(due_date=="" || temp_date<=current_date){
+                 alert("INVALID DUE DATE")
+                 return
+             }
+             var status=$("#status").val();
+             if(status=="-Select-"){
+                 alert("PLEASE SELECT VALID STATUS")
+                 return
+             }
+             const task=new Task(title,description,due_date,status)
+             Obj.add_task(task)
+             Obj.display_tasks()
+             $("#title").val("")
+             $("#description").val("")
+             $("#due_date").val("")
+             $("#status").val("-Select-")
+         }
+      </script>
+      <h2>TASK MANAGER</h2>
+      <!-- <form onsubmit="myFunction(); return false"> -->
+      <div class="m-3">
+         <div class="mb-3">
+            <label class="form-label">TITLE</label>
+            <input class="form-control" placeholder="Enter Title(25 characters or less)" type="text" name="title" id="title">
+         </div>
+         <div class="mb-3">
+            <label class="form-label">DESCRIPTION</label>
+            <textarea class="form-control" placeholder="Enter Description(50-200 characters)" type="text" id="description"></textarea>
+         </div>
+         <div class="mb-3">
+            <label class="form-label">DUE DATE</label>
+            <input class="form-control" type="date" id ="due_date" name="due_date">
+         </div>
+         <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select class="form-select" id="status">
+               <option>-Select-</option>
+               <option>Pending</option>
+               <option>Complete</option>
+            </select>
+         </div>
+         <!-- <input type="submit" value="Submit"> -->
+         <button class="btn btn-primary" onclick="myFunction()" type="submit" value="Submit">Submit</button>
+      </div>
+      <!-- </form> -->
+      <center>
+         <h3>TASKS LIST</h3>
+      </center>
+      <table class="mt-2 table table-striped" id="table">
+         <tr>
+            <th>Id</th>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Due Date(YYYY-MM-DD)</th>
+            <th>Status</th>
+            <th>Completed</th>
+            <th>Action</th>
+         </tr>
+      </table>
+   </body>
+</html>
